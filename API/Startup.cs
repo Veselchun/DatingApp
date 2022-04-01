@@ -1,5 +1,11 @@
+using System.Text;
 using API.Data;
+using API.Extensions;
+using API.Interfaces;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace API;
@@ -14,20 +20,15 @@ public class Startup
 
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
-    {
-
-        services.AddControllers();
-
-        services.AddDbContext<DataContext>(options => 
-        {
-            options.UseSqlite(_config.GetConnectionString("DefaultConnection"));
-        });
+    {    
+        services.AddApplicationServices(_config);
+        services.AddControllers();    
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
         });
-
         services.AddCors();
+        services.AddIdentityServices(_config);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +46,8 @@ public class Startup
         app.UseRouting();
 
         app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
+
+        app.UseAuthentication();
 
         app.UseAuthorization();
 
