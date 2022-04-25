@@ -22,6 +22,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           switch(error.status) {
             case 400:
               //flatten errors
+              //validation error
               if(error.error.errors) {
                 const modelStateErrors = [];
                 for(const key in error.error.errors) {
@@ -31,8 +32,13 @@ export class ErrorInterceptor implements HttpInterceptor {
                 }
                 throw modelStateErrors.flat();
               }
-              else {
+              //error object
+              else if(typeof(error.error) === 'object') {
                 this.toastr.error(error.statusText, error.status);
+              }
+              //string error
+              else {
+                this.toastr.error(error.error, error.status)
               }
               break;
             
